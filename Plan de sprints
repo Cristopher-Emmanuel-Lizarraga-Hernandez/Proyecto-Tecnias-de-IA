@@ -1,0 +1,174 @@
+# Plan de Sprints — Sistema de Autenticación Biométrica Facial para Recogida de Menores
+
+*Duración total:* 12 sprints
+*Presentación del proyecto:* Sprint 10 (MVP funcional completo)
+*Sprints 11–12:* Experimentación formal, documentación final y cierre (posteriores a la presentación)
+
+---
+
+## Sprint 1 — Análisis de requerimientos
+
+*Meta:* Tener el alcance del proyecto completamente definido y documentado antes de escribir código.
+
+*Acciones:*
+- Levantar requerimientos funcionales y no funcionales con base en el anteproyecto.
+- Definir roles de usuario (administrador, personal escolar, tutor).
+- Elaborar historias de usuario y backlog inicial del producto.
+- Definir criterios de aceptación por objetivo específico.
+- Priorizar el backlog para los sprints 2–10.
+
+*Mínimo producto viable:* Documento de requerimientos + backlog priorizado, validado y listo para iniciar diseño.
+
+---
+
+## Sprint 2 — Diseño de arquitectura y base de datos
+
+*Meta:* Contar con el diseño técnico que soportará todo el desarrollo posterior.
+
+*Acciones:*
+- Diseñar el diagrama entidad-relación (alumnos, tutores autorizados, embeddings faciales, bitácora, usuarios).
+- Definir la arquitectura MVC del backend en PHP.
+- Diseñar el flujo general del sistema (captura → reconocimiento → notificación → registro).
+- Definir política de seguridad para datos biométricos (cifrado, acceso restringido).
+
+*Mínimo producto viable:* Modelo de base de datos (MySQL) implementado y diagrama de arquitectura aprobado.
+
+---
+
+## Sprint 3 — Configuración del entorno y esqueleto del proyecto
+
+*Meta:* Tener el proyecto base operativo y bajo control de versiones.
+
+*Acciones:*
+- Configurar repositorio en Git/GitHub con flujo de ramas.
+- Montar el esqueleto MVC en PHP y conexión a MySQL.
+- Configurar entorno de desarrollo local y servidor de pruebas.
+- Definir estándares de código y estructura de carpetas.
+
+*Mínimo producto viable:* Aplicación base desplegable ("Hello World" del sistema) con conexión a base de datos funcionando.
+
+---
+
+## Sprint 4 — Gestión de alumnos y tutores autorizados
+
+*Meta:* Permitir el registro y administración segura de alumnos y tutores.
+
+*Acciones:*
+- Desarrollar CRUD de alumnos.
+- Desarrollar CRUD de tutores autorizados y su relación con alumnos.
+- Implementar formulario de captura de fotografías para generar embeddings.
+- Aplicar validaciones y control de acceso administrativo.
+
+*Mínimo producto viable:* Módulo administrativo funcional para dar de alta alumnos y tutores con su foto asociada.
+
+---
+
+## Sprint 5 — Captura de imágenes y generación de embeddings faciales
+
+*Meta:* Tener un módulo capaz de capturar rostros y convertirlos en embeddings almacenables.
+
+*Acciones:*
+- Integrar cámara web / ESP32-CAM para captura de imagen.
+- Implementar generación de embeddings faciales con OpenCV.
+- Almacenar embeddings de forma segura vinculados al tutor.
+- Probar la captura en condiciones básicas de iluminación.
+
+*Mínimo producto viable:* Captura de una foto desde cámara que genera y guarda un embedding facial en la base de datos.
+
+---
+
+## Sprint 6 — Módulo de reconocimiento facial (matching)
+
+*Meta:* Poder comparar un rostro capturado en tiempo real contra los embeddings registrados.
+
+*Acciones:*
+- Implementar algoritmo de comparación/matching de embeddings.
+- Definir umbral de similitud para aceptar/rechazar coincidencias.
+- Desarrollar lógica para identificar al tutor correspondiente.
+- Pruebas unitarias del módulo de reconocimiento con datos de prueba.
+
+*Mínimo producto viable:* Función que recibe una imagen y devuelve el tutor identificado (o "no identificado") con nivel de confianza.
+
+---
+
+## Sprint 7 — Integración del flujo de identificación completo
+
+*Meta:* Unir captura + reconocimiento + backend en un flujo funcional de punta a punta.
+
+*Acciones:*
+- Conectar el módulo de captura con el módulo de reconocimiento y la base de datos.
+- Implementar la interfaz del punto de recogida (pantalla/kiosco).
+- Registrar el intento de identificación (exitoso o fallido).
+- Pruebas de flujo completo en ambiente controlado.
+
+*Mínimo producto viable:* Un tutor se para frente a la cámara y el sistema lo identifica correctamente de extremo a extremo.
+
+---
+
+## Sprint 8 — Notificaciones en tiempo real
+
+*Meta:* Notificar automáticamente al personal/salón (y opcionalmente a los padres) cuando se identifica al tutor.
+
+*Acciones:*
+- Implementar consulta/notificación en tiempo real hacia el salón o personal escolar.
+- Integrar opción de notificación por WhatsApp o correo.
+- Diseñar la interfaz de notificación para el personal escolar.
+- Pruebas de tiempo de respuesta entre identificación y notificación.
+
+*Mínimo producto viable:* Al identificar a un tutor, el personal/salón recibe una notificación visible en tiempo real.
+
+---
+
+## Sprint 9 — Bitácora auditable y protocolo de respaldo
+
+*Meta:* Garantizar trazabilidad de cada entrega y una alternativa cuando el reconocimiento facial falla.
+
+*Acciones:*
+- Desarrollar la bitácora con fecha, hora, tutor y resultado de cada intento.
+- Implementar panel de consulta/reportes de la bitácora.
+- Desarrollar protocolo de respaldo (validación manual o PIN) para fallos de reconocimiento.
+- Pruebas del flujo alterno de respaldo.
+
+*Mínimo producto viable:* Toda entrega (exitosa o por respaldo) queda registrada y consultable en la bitácora.
+
+---
+
+## Sprint 10 — Integración final, pulido y presentación
+
+*Meta:* Cerrar el MVP completo, estable y presentable.
+
+*Acciones:*
+- Integrar todos los módulos en un flujo único coherente.
+- Corregir errores detectados en pruebas de integración.
+- Pulir interfaces (kiosco, panel administrativo, panel de notificaciones).
+- Preparar demo, material de presentación y documentación de apoyo.
+
+*Mínimo producto viable:* Sistema completo funcionando de punta a punta (registro → captura → reconocimiento → notificación → bitácora → respaldo), listo para demostración. *→ PRESENTACIÓN DEL PROYECTO*
+
+---
+
+## Sprint 11 — Experimentación y pruebas de precisión
+
+*Meta:* Validar la viabilidad real del sistema con pruebas controladas, según lo definido en la metodología.
+
+*Acciones:*
+- Reclutar grupo de voluntarios que simulen tutores autorizados.
+- Ejecutar pruebas bajo distintas condiciones (iluminación, ángulos, lentes, cubrebocas).
+- Medir tasa de reconocimiento correcto, falsos positivos, falsos negativos y tiempo de respuesta.
+- Ajustar umbrales/parámetros del módulo de reconocimiento según resultados.
+
+*Mínimo producto viable:* Reporte de resultados de experimentación con métricas de desempeño documentadas.
+
+---
+
+## Sprint 12 — Documentación final y cierre del proyecto
+
+*Meta:* Entregar el proyecto completo, documentado y con las conclusiones validadas.
+
+*Acciones:*
+- Integrar ajustes finales derivados de la experimentación y de la retroalimentación de la presentación.
+- Redactar documentación técnica completa (manual de instalación, manual de usuario).
+- Redactar conclusiones finales contrastando la hipótesis con los resultados obtenidos.
+- Preparar entrega final del proyecto (código, documentación, reporte).
+
+*Mínimo producto viable:* Proyecto finalizado, documentado y entregado, con hipótesis confirmada o refutada con evidencia.
