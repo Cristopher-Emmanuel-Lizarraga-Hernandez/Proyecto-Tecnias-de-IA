@@ -1,0 +1,89 @@
+"""
+detectar_rostro.py — Detección de rostro en tiempo real con OpenCV.
+
+Este es el paso previo al reconocimiento: solo detecta y marca los rostros
+que aparecen en la cámara, sin identificar a la persona todavía.
+
+Uso:
+    python detectar_rostro.py --webcam
+    python detectar_rostro.py --imagen ./foto.jpg
+"""
+import argparse
+import cv2
+
+CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+
+
+def cargar_detector():
+    detector = cv2.CascadeClassifier(CASCADE_PATH)
+    if detector.empty():
+        raise RuntimeError("No se pudo cargar el clasificador Haar Cascade")
+    return detector
+
+
+def detectar_rostros(imagen_gris, detector):
+    """Devuelve una lista de rectángulos (x, y, w, h), uno por rostro detectado."""
+    return detector.detectMultiScale(
+        imagen_gris,
+        scaleFactor=1.2,      # qué tanto se reduce la imagen en cada escala
+        minNeighbors=5,       # rigor de la detección (más alto = menos falsos positivos)
+        minSize=(80, 80),     # tamaño mínimo de rostro a detectar (px)
+    )
+
+
+def dibujar_rostros(frame, rostros):
+    for (x, y, w, h) in rostros:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    cv2.putText(
+        frame, f"Rostros detectados: {len(rostros)}", (10, 30),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2,
+    )
+    return frame
+
+
+def run_webcam():
+    detector = cargar_detector()
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        raise RuntimeError("No se pudo acceder a la cámara")
+
+    print("Detectando rostros... presiona 'q' para salir.")
+    while True:
+        ok, frame = cap.read()
+        if not ok:
+            break
+        gris = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        rostros = detectar_rostros(gris, detector)
+        frame = dibujar_rostros(frame, rostros)
+        cv2.imshow("Deteccion de rostro - pase inteligente", frame)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+def run_imagen(path):
+    detector = cargar_detector()
+    img = cv2.imread(path)
+    if img is None:
+        raise SystemExit(f"No se pudo leer la imagen: {path}")
+    gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    rostros = detectar_rostros(gris, detector)
+    img = dibujar_rostros(img, rostros)
+    salida = "deteccion_resultado.jpg"
+    cv2.imwrite(salida, img)
+    print(f"{len(rostros)} rostro(s) detectado(s). Resultado guardado en {salida}")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Detección de rostro con OpenCV")
+    parser.add_argument("--webcam", action="store_true", help="Usar la cámara en vivo")
+    parser.add_argument("--imagen", help="Ruta a una imagen de prueba")
+    args = parser.parse_args()
+
+    if args.webcam:
+        run_webcam()
+    elif args.imagen:
+        run_imagen(args.imagen)
+    else:
+        parser.error("Debes indicar --webcam o --imagen")
