@@ -1,8 +1,8 @@
 <?php
-namespace App\Controllers;
+namespace app\controllers;
 
-use App\Models\Tutor;
-use App\Models\BitacoraRecogida;
+use app\models\Tutor;
+use app\models\BitacoraRecogida;
 
 class ApiController {
 
