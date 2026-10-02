@@ -3,6 +3,7 @@ namespace app\controllers;
 
 use app\models\Tutor;
 use app\models\BitacoraRecogida;
+use Exception;
 
 class ApiController {
 
@@ -11,7 +12,7 @@ class ApiController {
      * Recibe JSON desde Python con el ID del tutor identificado o el vector de embeddings
      */
     public function validarBiometria() {
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
@@ -30,41 +31,49 @@ class ApiController {
             return;
         }
 
-        $tutorModel = new Tutor();
-        $tutor = $tutorModel->obtenerConAlumnos($tutorId);
+        try {
+            $tutorModel = new Tutor();
+            $tutor = $tutorModel->obtenerConAlumnos($tutorId);
 
-        if (!$tutor) {
-            http_response_code(404);
-            echo json_encode(['status' => 'error', 'mensaje' => 'Tutor no encontrado o no autorizado']);
-            return;
-        }
+            if (!$tutor) {
+                http_response_code(404);
+                echo json_encode(['status' => 'error', 'mensaje' => 'Tutor no encontrado o no autorizado']);
+                return;
+            }
 
-        // Registrar cada alumno asociado al tutor en la bitácora
-        $bitacoraModel = new BitacoraRecogida();
-        $registros = [];
+            // Registrar cada alumno asociado al tutor en la bitácora
+            $bitacoraModel = new BitacoraRecogida();
+            $registros = [];
 
-        foreach ($tutor['alumnos'] as $alumno) {
-            $idEntrega = $bitacoraModel->registrarEntrega([
-                'alumno_id' => $alumno['id'],
-                'tutor_id' => $tutor['id'],
-                'metodo' => 'RECONOCIMIENTO_FACIAL',
-                'estado' => 'PENDIENTE_EN_AULA',
-                'confianza_biometrica' => $confianza
+            if (!empty($tutor['alumnos']) && is_array($tutor['alumnos'])) {
+                foreach ($tutor['alumnos'] as $alumno) {
+                    $idEntrega = $bitacoraModel->registrarEntrega([
+                        'alumno_id' => $alumno['id'],
+                        'tutor_id' => $tutor['id'],
+                        'metodo' => 'RECONOCIMIENTO_FACIAL',
+                        'estado' => 'PENDIENTE_EN_AULA',
+                        'confianza_biometrica' => $confianza
+                    ]);
+
+                    $registros[] = [
+                        'entrega_id' => $idEntrega,
+                        'alumno' => $alumno['nombre_completo'],
+                        'aula' => $alumno['aula']
+                    ];
+                }
+            }
+
+            http_response_code(200);
+            echo json_encode([
+                'status' => 'success',
+                'mensaje' => 'Validación biométrica exitosa. Notificación enviada al aula.',
+                'tutor' => $tutor['nombre_completo'],
+                'entregas' => $registros
             ]);
-
-            $registros[] = [
-                'entrega_id' => $idEntrega,
-                'alumno' => $alumno['nombre_completo'],
-                'aula' => $alumno['aula']
-            ];
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'mensaje' => 'Error al procesar la validación biométrica']);
         }
-
-        echo json_encode([
-            'status' => 'success',
-            'mensaje' => 'Validación biométrica exitosa. Notificación enviada al aula.',
-            'tutor' => $tutor['nombre_completo'],
-            'entregas' => $registros
-        ]);
     }
 
     /**
@@ -72,16 +81,28 @@ class ApiController {
      * Usado por las pantallas de los salones para consulta en tiempo real
      */
     public function notificacionesAula() {
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
 
-        $aulaId = $_GET['aula_id'] ?? null;
-        $bitacoraModel = new BitacoraRecogida();
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            http_response_code(405);
+            echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido']);
+            return;
+        }
 
-        $pendientes = $bitacoraModel->obtenerPendientesPorAula($aulaId);
+        try {
+            $aulaId = $_GET['aula_id'] ?? null;
+            $bitacoraModel = new BitacoraRecogida();
 
-        echo json_encode([
-            'status' => 'success',
-            'data' => $pendientes
-        ]);
+            $pendientes = $bitacoraModel->obtenerPendientesPorAula($aulaId);
+
+            http_response_code(200);
+            echo json_encode([
+                'status' => 'success',
+                'data' => $pendientes
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'mensaje' => 'Error al obtener las notificaciones']);
+        }
     }
 }
