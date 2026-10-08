@@ -1,9 +1,9 @@
 <?php
-/**
- * app/models/Alumno.php
- * Acceso a datos de la tabla 'alumnos'.
- */
+namespace app\models;
+
 require_once __DIR__ . '/../../config/database.php';
+use Database;
+use PDO;
 
 class Alumno
 {
@@ -14,16 +14,27 @@ class Alumno
         $this->db = Database::getConexion();
     }
 
-    public function registrar(string $nombre, ?string $grupo): int
+    public function registrar(string $matricula, string $nombre, string $apellidoPaterno, string $apellidoMaterno, int $grado, string $grupo, string $aulaId): int
     {
-        $stmt = $this->db->prepare('INSERT INTO alumnos (nombre, grupo) VALUES (:nombre, :grupo)');
-        $stmt->execute(['nombre' => $nombre, 'grupo' => $grupo]);
+        $stmt = $this->db->prepare('
+            INSERT INTO alumnos (matricula, nombre, apellido_paterno, apellido_materno, grado, grupo, aula_id) 
+            VALUES (:matricula, :nombre, :apellido_paterno, :apellido_materno, :grado, :grupo, :aula_id)
+        ');
+        $stmt->execute([
+            'matricula' => $matricula,
+            'nombre' => $nombre,
+            'apellido_paterno' => $apellidoPaterno,
+            'apellido_materno' => $apellidoMaterno,
+            'grado' => $grado,
+            'grupo' => $grupo,
+            'aula_id' => $aulaId
+        ]);
         return (int) $this->db->lastInsertId();
     }
 
     public function listarTodos(): array
     {
-        $stmt = $this->db->query('SELECT * FROM alumnos ORDER BY nombre');
+        $stmt = $this->db->query('SELECT * FROM alumnos ORDER BY grado, grupo, nombre');
         return $stmt->fetchAll();
     }
 
