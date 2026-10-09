@@ -7,10 +7,10 @@
 
 class Database
 {
-    private static string $host = '192.168.10.215';
+    private static string $host = 'localhost';
     private static string $dbname = 'pase_inteligente_escolar';
-    private static string $user = 'debian';
-    private static string $password = 'debian'; 
+    private static string $user = 'root';
+    private static string $password = ''; 
     private static ?PDO $conexion = null;
 
     public static function getConexion(): PDO
