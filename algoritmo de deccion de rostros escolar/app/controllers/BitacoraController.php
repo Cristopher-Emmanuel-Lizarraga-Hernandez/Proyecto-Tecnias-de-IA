@@ -2,6 +2,7 @@
 /**
  * app/controllers/BitacoraController.php
  */
+namespace app\controllers;
 require_once __DIR__ . '/../models/BitacoraRecogida.php';
 
 class BitacoraController
