@@ -4,6 +4,7 @@
  */
 namespace app\controllers;
 require_once __DIR__ . '/../models/BitacoraRecogida.php';
+use app\models\BitacoraRecogida;
 
 class BitacoraController
 {
