@@ -26,7 +26,11 @@
             <div class="d-flex align-items-center text-white">
                 <a class="text-white text-decoration-none me-3" href="index.php?controller=tutor&action=index"><i class="fa-solid fa-user-shield me-1"></i> Tutores</a>
                 <a class="text-white text-decoration-none me-3" href="index.php?controller=bitacora&action=index"><i class="fa-solid fa-list-check me-1"></i> Bitácora</a>
-                <span><i class="fa-solid fa-user-circle me-1"></i> Administrador</span>
+                <span class="me-3"><i class="fa-solid fa-user-circle me-1"></i> <?= h(usuarioActual()['nombre'] ?? '') ?></span>
+                    <form method="post" action="index.php?controller=auth&action=logout" class="d-inline">
+                        <?= csrfCampo() ?>
+                    <button type="submit" class="btn btn-sm btn-outline-light">Salir</button>
+                    </form>
             </div>
         </div>
     </nav>
