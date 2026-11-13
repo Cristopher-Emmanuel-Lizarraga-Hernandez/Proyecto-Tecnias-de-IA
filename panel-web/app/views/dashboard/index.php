@@ -1,0 +1,209 @@
+<?php
+// app/views/dashboard/index.php
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bitácora Auditable de Entregas</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="index.php?controller=dashboard&action=index">
+                <i class="fa-solid fa-shield-halved me-2"></i>Pase Inteligente Escolar
+            </a>
+            <div class="d-flex align-items-center text-white">
+                <a class="text-white text-decoration-none me-3" href="index.php?controller=tutor&action=index"><i class="fa-solid fa-user-shield me-1"></i> Tutores</a>
+                <a class="text-white text-decoration-none me-3" href="index.php?controller=bitacora&action=index"><i class="fa-solid fa-list-check me-1"></i> Bitácora</a>
+                <span class="me-3"><i class="fa-solid fa-user-circle me-1"></i> <?= h(usuarioActual()['nombre'] ?? '') ?></span>
+                    <form method="post" action="index.php?controller=auth&action=logout" class="d-inline">
+                        <?= csrfCampo() ?>
+                    <button type="submit" class="btn btn-sm btn-outline-light">Salir</button>
+                    </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <!-- Encabezado de la página -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800 fw-bold">Panel de Control y Bitácora Auditable</h1>
+            <span class="badge bg-secondary p-2"><i class="fa-regular fa-calendar-check me-1"></i> <?php echo date('d/m/Y'); ?></span>
+        </div>
+
+        <!-- Tarjetas de Métricas Rápidas (KPIs) -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 border-start border-primary border-4 shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col me-2">
+                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">Entregas de Hoy</div>
+                                <div class="h5 mb-0 fw-bold text-dark"><?php echo $totales['hoy'] ?? 0; ?></div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa-solid fa-children fa-2x text-gray-300 text-primary opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 border-start border-success border-4 shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col me-2">
+                                <div class="text-xs fw-bold text-success text-uppercase mb-1">Vía Biometría (OpenCV)</div>
+                                <div class="h5 mb-0 fw-bold text-dark"><?php echo $totales['facial'] ?? 0; ?></div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa-solid fa-face-smile fa-2x text-success opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 border-start border-warning border-4 shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col me-2">
+                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">Vía PIN Respaldo</div>
+                                <div class="h5 mb-0 fw-bold text-dark"><?php echo $totales['pin'] ?? 0; ?></div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa-solid fa-key fa-2x text-warning opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 border-start border-danger border-4 shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col me-2">
+                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">No Autorizados Hoy</div>
+                                <div class="h5 mb-0 fw-bold text-dark"><?php echo $totales['no_autorizados'] ?? 0; ?></div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fa-solid fa-triangle-exclamation fa-2x text-danger opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de la Bitácora Auditable -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 fw-bold text-primary"><i class="fa-solid fa-list-check me-2"></i>Historial General de Entregas</h6>
+                <a href="index.php?controller=tutor&action=index" class="btn btn-sm btn-success"><i class="fa-solid fa-user-plus me-1"></i> Registrar tutor</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="tablaBitacora" class="table table-striped table-hover align-middle w-100">
+                        <thead class="table-light">
+                            <tr>
+                                <th># ID</th>
+                                <th>Fecha / Hora</th>
+                                <th>Alumno</th>
+                                <th>Grado / Aula</th>
+                                <th>Tutor Autorizado</th>
+                                <th>Método Validación</th>
+                                <th>Confianza (LBPH)</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($registrosBitacora)): ?>
+                                <?php foreach ($registrosBitacora as $row): ?>
+                                    <tr>
+                                        <td><strong>#<?php echo $row['id']; ?></strong></td>
+                                        <td><?php echo date('d/m/Y H:i:s', strtotime($row['fecha_hora_verificacion'])); ?></td>
+                                        <td><?php echo htmlspecialchars($row['alumno_nombre']); ?></td>
+                                        <td><span class="badge bg-secondary"><?php echo htmlspecialchars($row['grado_grupo']); ?></span></td>
+                                        <td><?php echo htmlspecialchars($row['tutor_nombre']); ?></td>
+                                        <td>
+                                            <?php if ($row['metodo_validacion'] === 'RECONOCIMIENTO_FACIAL'): ?>
+                                                <span class="badge bg-success"><i class="fa-solid fa-face-smile me-1"></i> Facial</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-warning text-dark"><i class="fa-solid fa-key me-1"></i> PIN</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($row['confianza_biometrica'] !== null): ?>
+                                                <span class="fw-bold" title="Distancia LBPH: menor es mejor coincidencia"><?php echo number_format($row['confianza_biometrica'], 1); ?></span>
+                                            <?php else: ?>
+                                                <span class="text-muted">N/A</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($row['estado_entrega'] === 'ENTREGADO'): ?>
+                                                <span class="badge bg-primary">Entregado</span>
+                                            <?php elseif ($row['estado_entrega'] === 'NO_AUTORIZADO'): ?>
+                                                <span class="badge bg-danger">No autorizado</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-info text-dark">En Aula</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts: JQuery, Bootstrap, DataTables y Botones de Exportación -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Inicializar DataTables con exportación a PDF, Excel e Impresión
+            $('#tablaBitacora').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                },
+                order: [[0, 'desc']], // Ordenar por ID descendente (más recientes primero)
+                dom: 'Bfrtip',
+                buttons: {
+                    dom: { button: { className: 'btn btn-sm' } },
+                    buttons: [
+                        { extend: 'excelHtml5', className: 'btn-outline-success me-1', text: '<i class="fa-solid fa-file-excel me-1"></i> Excel' },
+                        { extend: 'pdfHtml5', className: 'btn-outline-danger me-1', text: '<i class="fa-solid fa-file-pdf me-1"></i> PDF' },
+                        { extend: 'print', className: 'btn-outline-secondary me-1', text: '<i class="fa-solid fa-print me-1"></i> Imprimir' }
+                    ]
+                }
+            });
+        });
+    </script>
+</body>
+</html>

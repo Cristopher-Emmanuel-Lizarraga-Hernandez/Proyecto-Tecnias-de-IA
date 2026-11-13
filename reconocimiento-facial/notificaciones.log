@@ -1,0 +1,32 @@
+[2026-10-19 20:33:25] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 71.7)
+[2026-10-19 20:33:25] -> pantalla_salon_4: jose perez ha llegado por 4 (confianza: 64.3)
+[2026-10-19 20:33:25] -> padres: Confirmado: jose perez registrado en la recogida de 4
+[2026-10-19 20:35:16] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 93.0)
+[2026-10-19 20:35:20] -> pantalla_salon_4: jose perez ha llegado por 4 (confianza: 50.4)
+[2026-10-19 20:35:20] -> padres: Confirmado: jose perez registrado en la recogida de 4
+[2026-10-19 20:51:28] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 85.3)
+[2026-10-19 20:52:06] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 65.7)
+[2026-10-19 20:57:00] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 98.6)
+[2026-10-19 20:57:01] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 100.0)
+[2026-10-19 23:35:05] -> pantalla_salon_yahir sanchez: pedro sanchez ha llegado por yahir sanchez (confianza: 51.1)
+[2026-10-19 23:35:05] -> padres: Confirmado: pedro sanchez registrado en la recogida de yahir sanchez
+[2026-10-19 23:35:06] -> pantalla_salon_yahir sanchez: pedro sanchez ha llegado por yahir sanchez (confianza: 49.9)
+[2026-10-19 23:35:06] -> padres: Confirmado: pedro sanchez registrado en la recogida de yahir sanchez
+[2026-10-19 23:36:24] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 67.5)
+[2026-10-19 23:36:25] -> pantalla_salon_luis perez: jose perez ha llegado por luis perez (confianza: 65.0)
+[2026-10-19 23:36:25] -> padres: Confirmado: jose perez registrado en la recogida de luis perez
+[2026-11-09 22:00:20] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 94.0)
+[2026-11-09 22:00:22] -> pantalla_salon_puga: fernando ha llegado por puga (confianza: 64.8)
+[2026-11-09 22:00:22] -> padres: Confirmado: fernando registrado en la recogida de puga
+[2026-11-09 22:00:26] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 66.0)
+[2026-11-09 22:00:26] -> pantalla_salon_luis perez: jose perez ha llegado por luis perez (confianza: 61.6)
+[2026-11-09 22:00:26] -> padres: Confirmado: jose perez registrado en la recogida de luis perez
+[2026-11-09 22:00:38] -> pantalla_salon_puga: fernando ha llegado por puga (confianza: 59.4)
+[2026-11-09 22:00:38] -> padres: Confirmado: fernando registrado en la recogida de puga
+[2026-11-09 22:37:16] -> pantalla_salon_jose: luis ha llegado por jose (confianza: 60.7)
+[2026-11-09 22:37:16] -> padres: Confirmado: luis registrado en la recogida de jose
+[2026-11-09 22:43:14] -> pantalla_salon_jose: luis ha llegado por jose (confianza: 56.9)
+[2026-11-09 22:43:14] -> padres: Confirmado: luis registrado en la recogida de jose
+[2026-11-09 22:50:43] -> personal_seguridad: ALERTA: persona no reconocida intentó recoger a un alumno (confianza: 52.8)
+[2026-11-09 22:52:05] -> pantalla_salon_cristopher: miguel ha llegado por cristopher (confianza: 40.7)
+[2026-11-09 22:52:05] -> padres: Confirmado: miguel registrado en la recogida de cristopher
