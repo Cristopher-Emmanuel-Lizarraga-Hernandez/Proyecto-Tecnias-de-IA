@@ -7,6 +7,7 @@
 
     <?php if (($usuarioNav['rol'] ?? '') === 'admin'): ?>
         <a href="index.php?controller=profesor&action=index">Profesores</a>
+        <a href="index.php?controller=aula&action=index">Aulas</a>
     <?php endif; ?>
 
     <?php if ($usuarioNav): ?>

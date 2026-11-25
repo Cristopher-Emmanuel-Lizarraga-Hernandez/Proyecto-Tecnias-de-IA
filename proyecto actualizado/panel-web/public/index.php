@@ -15,6 +15,7 @@ $controllerNombre = $_GET['controller'] ?? 'dashboard';
 $accion = $_GET['action'] ?? 'index';
 
 $mapaControladores = [
+    'aula' => __DIR__ . '/../app/controllers/AulaController.php',
     'profesor'  => __DIR__ . '/../app/controllers/ProfesorController.php',
     'dashboard' => __DIR__ . '/../app/controllers/DashboardController.php',
     'tutor'     => __DIR__ . '/../app/controllers/TutorController.php',
@@ -23,6 +24,7 @@ $mapaControladores = [
 ];
 
 $mapaClases = [
+    'aula' => 'AulaController',
     'profesor'  => 'ProfesorController',
     'dashboard' => 'DashboardController',
     'tutor'     => 'TutorController',
@@ -52,6 +54,11 @@ if (!in_array($accion, $accionesPublicas[$controllerNombre] ?? [], true)) {
 }
 
 if ($controllerNombre === 'profesor' && !in_array($accion, ['index', 'editar', 'registrar', 'actualizar', 'cambiarEstado'], true)) {
+    http_response_code(404);
+    exit('Acción no encontrada');
+}
+
+if ($controllerNombre === 'aula' && !in_array($accion, ['index', 'editar', 'registrar', 'actualizar'], true)) {
     http_response_code(404);
     exit('Acción no encontrada');
 }
