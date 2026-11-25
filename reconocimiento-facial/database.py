@@ -104,6 +104,41 @@ class Database:
                 (tutor_id, alumno_id, confianza, int(autorizado)),
             )
 
+    def obtener_destino(self, tutor_id):
+        with self._conn() as conn:
+            cur = conn.cursor(dictionary=True)
+            cur.execute("""SELECT t.id AS tutor_id, t.nombre AS tutor_nombre,
+                a.id AS alumno_id, a.nombre AS alumno_nombre,
+                au.nombre AS aula, p.id AS profesor_id, p.correo
+                FROM tutores t JOIN alumnos a ON a.id = t.alumno_id
+                JOIN aulas au ON au.id = a.aula_id
+                JOIN profesores p ON p.id = au.profesor_id
+                WHERE t.id = %s AND p.activo = 1""", (tutor_id,))
+            return cur.fetchone()
+
+    def crear_aviso(self, destino, confianza, asunto, mensaje):
+        # Registra llegada y aviso en la misma transacción.
+        with self._conn() as conn:
+            cur = conn.cursor()
+            cur.execute("""INSERT INTO bitacora_recogida
+                (tutor_id, alumno_id, confianza, autorizado)
+                VALUES (%s, %s, %s, 0)""",
+                (destino['tutor_id'], destino['alumno_id'], confianza))
+            bitacora_id = cur.lastrowid
+            cur.execute("""INSERT INTO notificaciones
+                (bitacora_id, profesor_id, correo_destino, asunto, mensaje, estado, intentos)
+                VALUES (%s, %s, %s, %s, %s, 'pendiente', 1)""",
+                (bitacora_id, destino['profesor_id'], destino['correo'], asunto, mensaje))
+            return cur.lastrowid
+
+    def finalizar_aviso(self, aviso_id, enviado, error=None):
+        with self._conn() as conn:
+            cur = conn.cursor()
+            cur.execute("""UPDATE notificaciones SET estado = %s,
+                error_envio = %s, fecha_envio = CASE WHEN %s = 1 THEN NOW() ELSE NULL END
+                WHERE id = %s AND estado = 'pendiente'""",
+                ('enviada' if enviado else 'fallida', error, int(enviado), aviso_id))
+
     def historial(self, limite=20):
         with self._conn() as conn:
             cur = conn.cursor(dictionary=True)
