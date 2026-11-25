@@ -35,9 +35,17 @@
         <label>Nombre del alumno
             <input type="text" name="nombre_alumno" required maxlength="100">
         </label>
-        <label>Grupo
-            <input type="text" name="grupo" placeholder="ej. 3A" maxlength="100">
+        <label>Aula del alumno
+            <select name="aula_id" required>
+                <option value="">Selecciona un aula</option>
+                <?php foreach ($aulas as $aula): ?>
+                    <option value="<?= (int) $aula['id'] ?>"><?= htmlspecialchars($aula['nombre'] . ' — ' . $aula['profesor'], ENT_QUOTES, 'UTF-8') ?></option>
+                <?php endforeach; ?>
+            </select>
         </label>
+        <?php if (empty($aulas)): ?>
+            <p class="alerta alerta-error">Primero registra un aula con un profesor activo.</p>
+        <?php endif; ?>
         <label>Nombre del tutor
             <input type="text" name="nombre_tutor" required maxlength="100">
         </label>
@@ -68,13 +76,14 @@
     <h2>Tutores registrados</h2>
     <table class="tabla">
         <thead>
-            <tr><th>Nombre</th><th>Alumno</th><th>Parentesco</th><th>Label facial</th><th></th></tr>
+            <tr><th>Nombre</th><th>Alumno</th><th>Aula</th><th>Parentesco</th><th>Label facial</th><th></th></tr>
         </thead>
         <tbody>
         <?php foreach ($tutores as $t): ?>
             <tr>
                 <td><?= htmlspecialchars($t['nombre']) ?></td>
                 <td><?= htmlspecialchars($t['alumno_nombre']) ?></td>
+                <td><?= htmlspecialchars($t['aula_nombre'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8') ?></td>
                 <td><?= htmlspecialchars($t['parentesco']) ?></td>
                 <td><?= (int) $t['embedding_label'] ?></td>
                 <td><a href="index.php?controller=tutor&action=eliminar&id=<?= (int) $t['id'] ?>"

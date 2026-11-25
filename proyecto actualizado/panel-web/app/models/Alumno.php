@@ -14,10 +14,10 @@ class Alumno
         $this->db = Database::getConexion();
     }
 
-    public function registrar(string $nombre, ?string $grupo): int
+    public function registrar(string $nombre, ?string $grupo, ?int $aulaId = null): int
     {
-        $stmt = $this->db->prepare('INSERT INTO alumnos (nombre, grupo) VALUES (:nombre, :grupo)');
-        $stmt->execute(['nombre' => $nombre, 'grupo' => $grupo]);
+        $stmt = $this->db->prepare('INSERT INTO alumnos (nombre, grupo, aula_id) VALUES (:nombre, :grupo, :aula_id)');
+        $stmt->execute(['nombre' => $nombre, 'grupo' => $grupo, 'aula_id' => $aulaId]);
         return (int) $this->db->lastInsertId();
     }
 

@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/../models/Alumno.php';
 require_once __DIR__ . '/../models/Tutor.php';
+require_once __DIR__ . '/../models/Aula.php';
 
 class TutorController
 {
@@ -21,6 +22,7 @@ class TutorController
     public function index(): void
     {
         $tutores = $this->tutorModel->listarTodos();
+        $aulas = array_filter((new Aula())->listarTodos(), static fn(array $a): bool => (int) $a['profesor_activo'] === 1);
         require __DIR__ . '/../views/tutores/registrar.php';
     }
 
@@ -42,7 +44,12 @@ class TutorController
         verificarCsrf();
 
         $nombreAlumno = trim((string) ($_POST['nombre_alumno'] ?? ''));
-        $grupo = trim((string) ($_POST['grupo'] ?? ''));
+        $aulaId = filter_var($_POST['aula_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $aula = $aulaId ? (new Aula())->buscarPorId($aulaId) : null;
+        if (!$aula || (int) $aula['profesor_activo'] !== 1) {
+            $this->responder(false, 'Selecciona un aula con un profesor activo.', 422);
+        }
+        $grupo = $aula['nombre'];
         $nombreTutor = trim((string) ($_POST['nombre_tutor'] ?? ''));
         $parentesco = trim((string) ($_POST['parentesco'] ?? 'tutor'));
         if (!in_array($parentesco, ['padre', 'madre', 'tutor'], true)) {
@@ -55,7 +62,7 @@ class TutorController
         if ($nombreAlumno === '' || $nombreTutor === '') {
             $this->responder(false, 'El nombre del alumno y del tutor son obligatorios.', 422);
         }
-        if (mb_strlen($nombreAlumno) > 100 || mb_strlen($nombreTutor) > 100 || mb_strlen($grupo) > 100) {
+        if (mb_strlen($nombreAlumno) > 100 || mb_strlen($nombreTutor) > 100 || mb_strlen($grupo) > 50) {
             $this->responder(false, 'Algún dato es demasiado largo.', 422);
         }
 
@@ -75,7 +82,7 @@ class TutorController
             // Alumno y tutor se insertan dentro de una transacción...
             $db->beginTransaction();
             $label = $this->tutorModel->siguienteEmbeddingLabel();
-            $alumnoId = $this->alumnoModel->registrar($nombreAlumno, $grupo ?: null);
+            $alumnoId = $this->alumnoModel->registrar($nombreAlumno, $grupo, $aulaId);
             $this->tutorModel->registrar($nombreTutor, $alumnoId, $label, $parentesco);
 
             // ...y solo se confirman si Python logra guardar el rostro y entrenar el modelo.

@@ -36,8 +36,9 @@ class Tutor
     public function listarTodos(): array
     {
         $stmt = $this->db->query(
-            'SELECT t.*, a.nombre AS alumno_nombre
+            'SELECT t.*, a.nombre AS alumno_nombre, au.nombre AS aula_nombre
              FROM tutores t JOIN alumnos a ON t.alumno_id = a.id
+             LEFT JOIN aulas au ON au.id = a.aula_id
              ORDER BY t.nombre'
         );
         return $stmt->fetchAll();
