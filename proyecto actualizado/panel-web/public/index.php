@@ -15,6 +15,7 @@ $controllerNombre = $_GET['controller'] ?? 'dashboard';
 $accion = $_GET['action'] ?? 'index';
 
 $mapaControladores = [
+    'profesor'  => __DIR__ . '/../app/controllers/ProfesorController.php',
     'dashboard' => __DIR__ . '/../app/controllers/DashboardController.php',
     'tutor'     => __DIR__ . '/../app/controllers/TutorController.php',
     'bitacora'  => __DIR__ . '/../app/controllers/BitacoraController.php',
@@ -22,6 +23,7 @@ $mapaControladores = [
 ];
 
 $mapaClases = [
+    'profesor'  => 'ProfesorController',
     'dashboard' => 'DashboardController',
     'tutor'     => 'TutorController',
     'bitacora'  => 'BitacoraController',
@@ -47,6 +49,11 @@ if (!is_string($accion) || !preg_match('/^[a-z][A-Za-z0-9]*$/', $accion)) {
 // Puerta de entrada: sin sesión, solo se permite lo público.
 if (!in_array($accion, $accionesPublicas[$controllerNombre] ?? [], true)) {
     requerirLogin();
+}
+
+if ($controllerNombre === 'profesor' && !in_array($accion, ['index', 'editar', 'registrar', 'actualizar', 'cambiarEstado'], true)) {
+    http_response_code(404);
+    exit('Acción no encontrada');
 }
 
 require_once $mapaControladores[$controllerNombre];

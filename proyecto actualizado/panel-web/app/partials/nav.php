@@ -5,6 +5,10 @@
     <a href="index.php?controller=tutor&action=index">Tutores</a>
     <a href="index.php?controller=bitacora&action=index">Bitácora</a>
 
+    <?php if (($usuarioNav['rol'] ?? '') === 'admin'): ?>
+        <a href="index.php?controller=profesor&action=index">Profesores</a>
+    <?php endif; ?>
+
     <?php if ($usuarioNav): ?>
         <form method="post" action="index.php?controller=auth&action=logout" style="display:inline; margin-left:auto;">
             <?= csrfCampo() ?>
