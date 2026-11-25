@@ -131,6 +131,43 @@ class Database:
                 (bitacora_id, destino['profesor_id'], destino['correo'], asunto, mensaje))
             return cur.lastrowid
 
+    def crear_aviso_controlado(self, tutor_id):
+        """Reserva un aviso por tutor cada cinco minutos, incluso tras reiniciar."""
+        with self._conn() as conn:
+            cur = conn.cursor(dictionary=True)
+            cur.execute("SELECT id FROM tutores WHERE id = %s FOR UPDATE", (tutor_id,))
+            if not cur.fetchone():
+                return None, 'Tutor inexistente.'
+            cur.execute("""SELECT n.id FROM notificaciones n
+                JOIN bitacora_recogida b ON b.id = n.bitacora_id
+                WHERE b.tutor_id = %s
+                AND n.fecha_creacion >= NOW() - INTERVAL 5 MINUTE
+                LIMIT 1""", (tutor_id,))
+            if cur.fetchone():
+                return None, 'Ya existe un aviso en los últimos cinco minutos.'
+            cur.execute("""SELECT a.id AS alumno_id, a.nombre AS alumno_nombre,
+                au.nombre AS aula, p.id AS profesor_id, p.correo
+                FROM tutores t JOIN alumnos a ON a.id = t.alumno_id
+                JOIN aulas au ON au.id = a.aula_id
+                JOIN profesores p ON p.id = au.profesor_id
+                WHERE t.id = %s AND p.activo = 1""", (tutor_id,))
+            destino = cur.fetchone()
+            if not destino:
+                return None, 'Sin aula o profesor activo.'
+            asunto = 'Aviso de llegada - Pase Inteligente Escolar'
+            mensaje = (f"Ha llegado un tutor para recoger al alumno {destino['alumno_nombre']}, "
+                       f"del aula {destino['aula']}.\n\n"
+                       "La entrega requiere la comprobación final del personal escolar.")
+            cur.execute("""INSERT INTO bitacora_recogida
+                (tutor_id, alumno_id, confianza, autorizado) VALUES (%s, %s, NULL, 0)""",
+                (tutor_id, destino['alumno_id']))
+            bitacora_id = cur.lastrowid
+            cur.execute("""INSERT INTO notificaciones
+                (bitacora_id, profesor_id, correo_destino, asunto, mensaje, estado, intentos)
+                VALUES (%s, %s, %s, %s, %s, 'pendiente', 1)""",
+                (bitacora_id, destino['profesor_id'], destino['correo'], asunto, mensaje))
+            return (cur.lastrowid, destino['correo'], asunto, mensaje), None
+
     def finalizar_aviso(self, aviso_id, enviado, error=None):
         with self._conn() as conn:
             cur = conn.cursor()

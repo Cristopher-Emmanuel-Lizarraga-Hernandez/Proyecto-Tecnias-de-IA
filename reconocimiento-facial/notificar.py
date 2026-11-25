@@ -60,6 +60,24 @@ def notificar_intento_no_autorizado(confianza):
     _actualizar_estado("no_autorizado", confianza=confianza)
 
 
-if __name__ == "__main__":
-    notificar_llegada_autorizada("Juan Perez", "Ana Lopez", 42.3)
-    notificar_intento_no_autorizado(88.9)
+def avisar_llegada_confirmada(db, tutor_id):
+    """Solo llamar después de la comprobación presencial por personal escolar."""
+    import os
+    from correo import enviar_correo
+    if not os.getenv('SMTP_USER') or not os.getenv('SMTP_PASSWORD'):
+        print('Configura SMTP_USER y SMTP_PASSWORD antes de enviar.')
+        return False
+    aviso, error = db.crear_aviso_controlado(tutor_id)
+    if not aviso:
+        print(error)
+        return False
+    aviso_id, correo, asunto, mensaje = aviso
+    try:
+        enviar_correo(correo, asunto, mensaje)
+    except Exception as exc:
+        db.finalizar_aviso(aviso_id, False, type(exc).__name__)
+        print(f'No se confirmó el envío: {type(exc).__name__}. Aviso {aviso_id}.')
+        return False
+    db.finalizar_aviso(aviso_id, True)
+    print(f'Aviso {aviso_id} registrado como enviado.')
+    return True
