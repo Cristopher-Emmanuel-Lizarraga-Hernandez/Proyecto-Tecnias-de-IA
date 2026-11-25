@@ -2,8 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pase Inteligente Escolar — Tutores</title>
     <link rel="stylesheet" href="../public/estilos.css">
+    <style>
+        .camara-caja { margin: 1rem 0; }
+        .camara-caja video { display: block; width: 100%; max-width: 420px; aspect-ratio: 4 / 3;
+                             background: #111; border-radius: 10px; transform: scaleX(-1); /* efecto espejo */ }
+        .camara-caja progress { width: 100%; max-width: 420px; margin-top: .5rem; }
+        .check { display: flex; gap: .5rem; align-items: flex-start; margin: 1rem 0; }
+        #estado-registro { margin: .75rem 0; font-weight: 600; }
+        .estado-info  { color: #1d4ed8; }
+        .estado-ok    { color: #166534; }
+        .estado-error { color: #b91c1c; }
+    </style>
 </head>
 <body>
 <?php require __DIR__ . '/../../partials/nav.php'; ?>
@@ -18,15 +30,16 @@
         <p class="alerta alerta-ok"><?= htmlspecialchars($mensaje) ?></p>
     <?php endif; ?>
 
-    <form method="post" action="index.php?controller=tutor&action=registrar" class="formulario">
+    <form method="post" action="index.php?controller=tutor&action=registrarConRostro" class="formulario" id="form-registro">
+        <?= csrfCampo() ?>
         <label>Nombre del alumno
-            <input type="text" name="nombre_alumno" required>
+            <input type="text" name="nombre_alumno" required maxlength="100">
         </label>
         <label>Grupo
-            <input type="text" name="grupo" placeholder="ej. 3A">
+            <input type="text" name="grupo" placeholder="ej. 3A" maxlength="100">
         </label>
         <label>Nombre del tutor
-            <input type="text" name="nombre_tutor" required>
+            <input type="text" name="nombre_tutor" required maxlength="100">
         </label>
         <label>Parentesco
             <select name="parentesco">
@@ -35,7 +48,21 @@
                 <option value="tutor">Tutor</option>
             </select>
         </label>
-        <button type="submit">Registrar</button>
+
+        <label class="check">
+            <input type="checkbox" name="consentimiento" value="1" required>
+            <span>El tutor autoriza que se registre su imagen facial para identificarlo al recoger al alumno.</span>
+        </label>
+
+        <div class="camara-caja">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="canvas" hidden></canvas>
+            <progress id="barra" max="25" value="0" hidden></progress>
+            <p id="estado-registro" class="estado-info">Cámara apagada. Pulsa «Encender cámara» para empezar.</p>
+            <button type="button" id="btn-camara">Encender cámara</button>
+        </div>
+
+        <button type="submit" id="btn-registrar" disabled>Registrar y escanear rostro</button>
     </form>
 
     <h2>Tutores registrados</h2>
@@ -57,5 +84,7 @@
         </tbody>
     </table>
 </main>
+
+<script src="../public/registro_camara.js"></script>
 </body>
 </html>
